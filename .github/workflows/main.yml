@@ -1,0 +1,53 @@
+name: Deploy Twitter Clone
+
+on:
+  push:
+    branches: [ main ]
+
+env:
+  PROJECT_ID: twitter-clone-sre
+  GKE_CLUSTER: twitter-clone-cluster
+  GKE_ZONE: us-central1-a
+  REPOSITORY: repo-clone
+  IMAGE: app
+
+jobs:
+  setup-build-publish-deploy:
+    name: Setup, Build, Publish, and Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    # Autenticação na GCP via Service Account Key
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v2'
+      with:
+        credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+    # Configura o gcloud CLI e autentica o Docker
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v2'
+
+    - name: 'Docker Auth'
+      run: |-
+        gcloud auth configure-docker us-central1-docker.pkg.dev
+
+    # Build e Push da Imagem
+    - name: Build and Push
+      run: |-
+        docker build -t us-central1-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$GITHUB_SHA .
+        docker push us-central1-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$GITHUB_SHA
+
+    # Conectar ao GKE e fazer o Deploy
+    - name: Get GKE Credentials
+      uses: 'google-github-actions/get-gke-credentials@v2'
+      with:
+        cluster_name: ${{ env.GKE_CLUSTER }}
+        location: ${{ env.GKE_ZONE }}
+
+    - name: Deploy to GKE
+      run: |-
+        kubectl set image deployment/twitter-app twitter-container=us-central1-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$GITHUB_SHA
+        kubectl rollout status deployment/twitter-app
