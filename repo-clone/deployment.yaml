@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: twitter-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: twitter
+  template:
+    metadata:
+      labels:
+        app: twitter
+    spec:
+      containers:
+      - name: twitter-container
+        image: us-central1-docker.pkg.dev/twitter-clone-sre/repo-clone/app:v2
+        ports:
+        - containerPort: 80 # Ou a porta que seu app PHP/Node usa (ex: 8080)
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: twitter-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: twitter
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
