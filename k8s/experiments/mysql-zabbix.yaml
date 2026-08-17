@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      # --- SEU CONTAINER ATUAL DO MYSQL ---
+      - image: mysql:5.7
+        name: mysql
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "" # Cuidado: apenas para lab!
+        - name: MYSQL_DATABASE
+          value: twitter_clone
+        - name: MYSQL_ALLOW_EMPTY_PASSWORD
+          value: "yes"
+        ports:
+        - containerPort: 3306
+          name: mysql
+
+      # --- CONTAINER DO EXPORTER COM A SUA SENHA ---
+      - name: mysqld-exporter
+        image: prom/mysqld-exporter:v0.14.0
+        env:
+        - name: DATA_SOURCE_NAME
+          value: "root:12345@tcp(127.0.0.1:3306)/"
+        args:
+        - --collect.global_status
+        - --collect.global_variables
+        ports:
+        - containerPort: 9104
+          name: metrics
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+spec:
+  ports:
+  - port: 3306
+    name: mysql
+    targetPort: 3306
+  # --- NOVO: PORTA EXPOSTA PARA O ZABBIX ---
+  - port: 9104
+    name: metrics
+    targetPort: 9104
+  selector:
+    app: mysql

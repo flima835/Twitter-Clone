@@ -1,0 +1,17 @@
+# Segredos e credenciais - NUNCA versionar
+key.json
+secrets/
+*.pem
+*.key
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+
+# Logs e arquivos temporarios
+*.log
+*.swp
+*.swo
+.DS_Store

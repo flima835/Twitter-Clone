@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "dd-apm": {
+      "source": "datadog-labs/agent-skills",
+      "sourceType": "github",
+      "skillPath": "dd-apm/SKILL.md",
+      "computedHash": "4adcaa790488982876fa117634db43aee820a52fba1754967bfc0ac072ca7968"
+    }
+  }
+}

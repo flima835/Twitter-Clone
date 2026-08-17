@@ -1,0 +1,17 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: twitter-clone
+  namespace: argocd
+spec:
+  description: "Projeto ArgoCD do lab Twitter-Clone (build/test de APM no Datadog)"
+  sourceRepos:
+    - 'https://github.com/flima835/Twitter-Clone.git'
+  destinations:
+    - namespace: default
+      server: https://kubernetes.default.svc
+    - namespace: datadog
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: ''
+      kind: Namespace

@@ -1,0 +1,9 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+# OBS: nao definimos 'namespace:' global aqui de proposito, para preservar
+# o comportamento atual (app e mysql no namespace default; o datadog-agent
+# continua no namespace 'datadog', pois ja vem com isso definido no proprio arquivo).
+resources:
+  - deployment.yaml
+  - mysql-deployment.yaml
+  - datadog-agent.yaml

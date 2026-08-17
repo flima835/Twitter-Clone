@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: twitter-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: twitter
+  template:
+    metadata:
+      labels:
+        app: twitter
+    spec:
+      containers:
+      - name: twitter-container
+        image: us-central1-docker.pkg.dev/twitter-clone-sre/repo-clone/app:v2
+        ports:
+        - containerPort: 80
+        env:
+        # --- A SALVAÇÃO DO SITE: Desliga o tracer corrompido da imagem ---
+        - name: DD_TRACE_ENABLED
+          value: "true"
+
+        # --- Variáveis de Infraestrutura (Downward API) ---
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: APP_VERSION
+          value: "v15"
+        - name: REPLICA_COUNT
+          value: "2"
+
+        # --- Variáveis do Datadog APM Integradas ---
+        - name: DD_AGENT_HOST
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: DD_TRACE_AGENT_PORT
+          value: "8126"
+        - name: DD_SERVICE
+          value: "twitter-app"
+        - name: DD_ENV
+          value: "lab-sre"
+        - name: DD_VERSION
+          value: "v15"
+        - name: DD_TRACE_SAMPLE_RATE
+          value: "1.0"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: twitter-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: twitter
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
