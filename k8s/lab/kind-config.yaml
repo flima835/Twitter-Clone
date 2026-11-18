@@ -1,0 +1,6 @@
+# Cluster kind do lab (1 nó). Para estudar scheduling/affinity, adicione workers:
+#   - role: worker
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane

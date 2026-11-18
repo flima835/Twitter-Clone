@@ -53,6 +53,13 @@ POD_MYSQL=$(kubectl get pods -l app=mysql -o jsonpath="{.items[0].metadata.name}
 echo -e "${YELLOW}Criando tabelas no MySQL ($POD_MYSQL)...${NC}"
 kubectl exec -i $POD_MYSQL -- mysql -u root twitter_clone < app/db/backup_hoje.sql
 
+# >>> lab-k8s (twitter-clone) >>>
+echo -e "${GREEN}### 6.5 Subindo o lab Kubernetes (ArgoCD, Kargo, Jenkins, GitLab, Redis, MongoDB, Kafka) ###${NC}"
+# O GKE do Terraform é pequeno (1x e2-medium), então o lab roda num cluster kind local.
+# Para usar o GKE (depois de aumentar o node pool): LAB_CLUSTER_MODE=existing
+LAB_CLUSTER_MODE="${LAB_CLUSTER_MODE:-kind}" bash scripts/lab-up.sh || echo -e "${YELLOW}lab-k8s terminou com avisos (veja scripts/lab-status.sh)${NC}"
+# <<< lab-k8s (twitter-clone) <<<
+
 echo -e "${GREEN}### 7. Tudo Pronto! Aguardando IP Externo do Load Balancer ###${NC}"
 echo -e "${YELLOW}Pressione Ctrl+C para sair do log quando o IP aparecer.${NC}"
 kubectl get service twitter-service -w

@@ -1,0 +1,17 @@
+# Values do chart jenkins/jenkins (https://charts.jenkins.io) para o lab.
+# A senha do admin é passada por scripts/lab/40-jenkins.sh (--set controller.admin.password).
+controller:
+  admin:
+    username: admin
+  serviceType: ClusterIP
+  resources:
+    requests: {cpu: 250m, memory: 768Mi}
+    limits: {memory: 2Gi}
+  additionalPlugins:
+    - docker-workflow
+    - pipeline-stage-view
+    - gitlab-plugin
+persistence:
+  size: 5Gi
+agent:
+  enabled: true
